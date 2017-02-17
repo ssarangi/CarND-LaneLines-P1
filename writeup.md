@@ -1,4 +1,12 @@
-# Finding Lane Lines on the Road** 
+# Finding Lane Lines on the Road
+
+
+# Assumptions:
+* The region of interest is always assumed to be at the center which essentially
+means that it's always assumed that the car starts at the center of the lanes.
+
+# Working:
+Currently, the same pipeline works for both white and yellow lines.
 
 # Writeup Template
 
