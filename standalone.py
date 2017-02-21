@@ -285,6 +285,8 @@ def draw_hough_lines(lines, line_image, global_vals):
 
 
 def lane_detection_pipeline(image, global_vals):
+    plt.imshow(image)
+    plt.show()
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     # Define a kernel size and apply Gaussian smoothing
