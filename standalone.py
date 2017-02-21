@@ -280,13 +280,14 @@ def draw_hough_lines(lines, line_image, global_vals):
     # Draw 2 lines
     cv2.line(line_image, (left_x1, lower_y), (left_x2, upper_y), (255, 0, 0), 5)
     cv2.line(line_image, (right_x1, lower_y), (right_x2, upper_y), (255, 0, 0), 5)
+    # for line in lines:
+    #     for x0, y0, x1, y1 in line:
+    #         cv2.line(line_image, (x0, y0), (x1, y1), (0, 0, 255), 8)
 
     return line_image
 
 
 def lane_detection_pipeline(image, global_vals):
-    plt.imshow(image)
-    plt.show()
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
     # Define a kernel size and apply Gaussian smoothing
@@ -371,8 +372,34 @@ def process_test_images():
             plt.imshow(line_overlay_img)
 
 def process_single_image(dir, filename):
+    global_extra_video_vals = Global(single_img_being_processed=True, use_dominant_line_approach=False)
+    image = mpimg.imread(dir + "/" + filename)
+    width = image.shape[1]
+    height = image.shape[0]
+    center_x = width / 2
+    center_y = height / 2
+    x_offset = 30
+    y_offset = 240
+
+    left_offset = 230
+    bottom_offset = 55
+
+    global_extra_video_vals.data.canny.low_threshold = 50
+    global_extra_video_vals.data.canny.high_threshold = 220
+
+    global_extra_video_vals.data.hough.rho = 1
+    global_extra_video_vals.data.hough.theta = np.pi/180
+    global_extra_video_vals.data.hough.threshold = 40
+    global_extra_video_vals.data.hough.min_line_length = 30
+    global_extra_video_vals.data.hough.max_line_gap = 200
+
+    global_extra_video_vals.data.roi_vertices = np.array([[(left_offset, height - bottom_offset),
+                                               (center_x - x_offset, center_y / 2 + y_offset),
+                                               (center_x + x_offset, center_y / 2 + y_offset),
+                                               (width - left_offset, height - bottom_offset)]],
+                                             dtype=np.int32)
     image = mpimg.imread(os.path.join(dir, filename)) # "IMG_FROM_FRAME/frame625.jpg")
-    edge_img, new_img = lane_detection_pipeline(image)
+    edge_img, new_img = lane_detection_pipeline(image, global_extra_video_vals)
     cv2.imwrite("IMG_FROM_FRAME/experiment.jpg", new_img, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
     cv2.imwrite("IMG_FROM_FRAME/experiment_edge.jpg", edge_img, [int(cv2.IMWRITE_JPEG_QUALITY), 100])
 
@@ -486,8 +513,9 @@ def process_video_per_frame(input_video_filename):
 
 def main():
     # process_video_per_frame("extra.mp4")
-    process_video_and_recreate("challenge.mp4", "extra.mp4")
+    # process_video_and_recreate("challenge.mp4", "extra.mp4")
     # process_video_per_frame("challenge.mp4")
+    process_single_image("IMG_FROM_FRAME", "frame103.jpg")
 
 if __name__ == "__main__":
     main()
